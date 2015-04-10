@@ -1,5 +1,4 @@
-function double_tank_problem_proj()
-close all;
+function [X,U,J_array,U_star,T] = double_tank_problem_proj()
 global tf;
 global x0;
 global pf;
@@ -9,11 +8,11 @@ format long g
 tf=10;
 x0=[2.000;2.0000];
 pf=[0;0];
-dt=0.001;
+dt=0.01;
 T=0:dt:tf;
-%r = 2.5+T*0.1;
-r = 3*ones(1,length(T));
-max_iter = 100;
+r = 2.5+T*0.1;
+%r = 3*ones(1,length(T));
+max_iter = 500;
 iter_num = 0;
 N=length(T);
 U=zeros(1,N);
@@ -22,7 +21,11 @@ beta = 0.5;
 J_array = [];
 last_j=2;
 while(iter_num<max_iter)
-    j = last_j-2;
+    if last_j -2 < 0
+        j = 0;
+    else
+        j = last_j-2;
+    end
     X = compute_x(U);
     P = compute_p(X,U);
     J = compute_cost(X,U)
@@ -46,14 +49,7 @@ while(iter_num<max_iter)
 end
 
 
-figure;
-plot(T,U);
-figure;
-plot(T,X(2,:),T,r);
-figure;
-plot(J_array);
 
-disp('Done');
 end
 
 function f1 = f1(x)
@@ -102,9 +98,9 @@ N=length(U1);
 P1=[];
 p=pf;
 
-for i=1:N
+for i=0:N-1
     P1=[p,P1];
-    p=p-dt*(-((1-U1(i))*f1_prime(X1(:,i)) + U1(i)*f2_prime(X1(:,i)))'*p-(L1_prime(X1(:,i),U1(i),r(i)))');
+    p=p-dt*(-((1-U1(end-i))*f1_prime(X1(:,end-i)) + U1(end-i)*f2_prime(X1(:,end-i)))'*p-(L1_prime(X1(:,end-i),U1(end-i),r(end-i)))');
 end
 end
 

@@ -1,5 +1,4 @@
-function robot_path_planning()
-close all;
+function [X,U,J_array,U_star,T] = robot_path_planning()
 global tf;
 global x0;
 global pf;
@@ -20,10 +19,10 @@ format long g
 tf=3;
 x0=[0.05;0];
 pf=[0;0];
-dt=0.001;
+dt=0.01;
 T=0:dt:tf;
 
-max_iter = 10;
+max_iter = 30;
 iter_num = 0;
 N=length(T);
 U=zeros(2,N);
@@ -32,7 +31,11 @@ b = 0.5;
 J_array = [];
 last_j=2;
 while(iter_num<max_iter)
-    j = last_j-2;
+    if last_j -2 < 0
+        j = 0;
+    else
+        j = last_j-2;
+    end
     X = compute_x(U);
     P = compute_p(X,U);
     J = compute_cost(X,U)
@@ -56,14 +59,7 @@ while(iter_num<max_iter)
 end
 
 
-figure;
-plot(T,U);
-figure;
-plot(X(1,:),X(2,:));
-figure;
-plot(J_array);
 
-disp('Done');
 end
 
 function fg = fg(x)
@@ -88,7 +84,7 @@ global rho;
 global x_goal;
 global x_obs;
 
-L1 = rho*norm(x_goal-x1)^2 + alpha*exp(-(norm(x_obs-x1)^2)/beta);
+L1 = rho*(norm(x_goal-x1))^2 + alpha*exp(-(norm(x_obs-x1)^2)/beta);
 end
 
 function fg_prime = fg_prime(x1)
@@ -139,9 +135,9 @@ N=length(U1);
 P1=[];
 p=pf;
 
-for i=1:N
+for i=0:N-1
     P1=[p,P1];
-    p=p-dt*(-((U1(1,i))*fg_prime(X1(:,i)) + U1(2,i)*fcl_prime(X1(:,i)) + (1-U1(1,i)-U1(2,i))*fcc_prime(X1(:,i)))'*p -(L1_prime(X1(:,i),U1(:,i)))');
+    p=p-dt*(-((U1(1,end-i))*fg_prime(X1(:,end-i)) + U1(2,end-i)*fcl_prime(X1(:,end-i)) + (1-U1(1,end-i)-U1(2,end-i))*fcc_prime(X1(:,end-i)))'*p -(L1_prime(X1(:,end-i),U1(:,end-i)))');
 end
 end
 
