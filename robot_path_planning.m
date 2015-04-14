@@ -110,7 +110,7 @@ global alpha;
 global beta;
 global rho;
 
-L1_prime =-(2*rho*(x_goal-x1)' + 2*(alpha/beta)*exp(-(norm(x_obs-x1)^2)/beta)*(x_obs-x1)') ;
+L1_prime =-(2*rho*(x_goal-x1)' - 2*(alpha/beta)*exp(-(norm(x_obs-x1)^2)/beta)*(x_obs-x1)') ;
 end
 
 function X1=compute_x(U1)
